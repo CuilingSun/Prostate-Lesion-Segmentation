@@ -128,6 +128,9 @@ pretrained/
 # local env backups / conda temp
 nnunetv2_env_backup_*.yml
 condarc_tmp.yml
+.codex_write_test
+.ro_test
+session.task
 
 # results folders
 pred/
@@ -135,7 +138,8 @@ val_results/
 
 promptbank_vectors/
 similarity_map/
-/quick_search
+quick_search/
+out_heatmap/
 
 tools/run_moe_text_tversky.sh
 tools/run_moe_text_cross_attn.sh

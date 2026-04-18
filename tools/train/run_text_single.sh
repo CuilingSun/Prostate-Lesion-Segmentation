@@ -3,15 +3,17 @@ set -euo pipefail
 
 # Run a single Text trainer (nnUNetTrainerMultiEncoderUNetText) job with convenient defaults.
 # Usage:
-#   bash tools/run_text_single.sh <GPU_ID> [FOLD] [DATASET] [CONFIG] [PLANS]
+#   bash tools/train/run_text_single.sh <GPU_ID> [FOLD] [DATASET] [CONFIG] [PLANS]
 # Optional env: NNUNET_PRETRAINED_WEIGHTS=/path/to/checkpoint.pth to finetune
 # Example:
-#   bash tools/run_text_single.sh 4 0 Dataset2202_picai_split 3d_fullres nnUNetPlans
+#   bash tools/train/run_text_single.sh 4 0 Dataset2202_picai_split 3d_fullres nnUNetPlans
 #
 # Notes:
 # - QUICK=1 (default): NNUNET_ITERS_PER_EPOCH=200, NNUNET_VAL_ITERS=100
 # - QUICK=0:          NNUNET_ITERS_PER_EPOCH=300, NNUNET_VAL_ITERS=200
 # - You can override any NNUNET_* env var before calling this script.
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+POSTPROCESS_PY="${SCRIPT_DIR}/../eval/postprocess_cc.py"
 
 GPU="${1:?Need GPU id}"
 FOLD="${2:-0}"
@@ -151,7 +153,7 @@ CMD_BLOCK="set +u; set -eo pipefail; \
         mkdir -p \"\$OUTPP\"; \
         EXTRA_ARG=''; \
         if [ \"$KEEP_LARGEST\" = \"1\" ]; then EXTRA_ARG='--keep-largest'; fi; \
-        \"${PY_GETS}\" tools/postprocess_cc.py --in \"\$folder\" --out \"\$OUTPP\" --labels 1 --min-voxels \"\${MV}\" \$EXTRA_ARG; \
+        \"${PY_GETS}\" \"${POSTPROCESS_PY}\" --in \"\$folder\" --out \"\$OUTPP\" --labels 1 --min-voxels \"\${MV}\" \$EXTRA_ARG; \
         nnUNetv2_evaluate_folder \"$GTFOLDER\" \"\$OUTPP\" -djfile \"$DJFILE\" -pfile \"$PFILE\" -o \"\$OUTPP/summary.json\" 2>&1 | tee -a \"$LOGFILE_VAL\"; \
       done; \
     else \

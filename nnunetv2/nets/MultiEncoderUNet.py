@@ -18,7 +18,7 @@ from nnunetv2.utilities.plans_handling.plans_handler import ConfigurationManager
 from nnunetv2.utilities.network_initialization import InitWeights_He
 
 
-# ---------- 基础模块 ----------
+# ---------- Basic Blocks ----------
 class UpsampleLayer(nn.Module):
     def __init__(
         self,
@@ -80,7 +80,7 @@ class BasicResBlock(nn.Module):
 
 
 class FusionBlock(nn.Module):
-    """多模态通道拼接后的 3x3(×3) 卷积融合，降回单模态通道数。"""
+    """Fuse concatenated multi-modal features and project back to per-modality channels."""
     def __init__(
         self,
         conv_op: Type[_ConvNd],
@@ -106,9 +106,9 @@ class FusionBlock(nn.Module):
         return self.block(x)
 
 
-# ---------- 编码器 ----------
+# ---------- Encoder ----------
 class UNetResEncoder(nn.Module):
-    """return_skips=True：返回浅->深的特征列表"""
+    """When return_skips=True, returns feature maps from shallow to deep."""
     def __init__(
         self,
         input_channels: int,
@@ -240,7 +240,7 @@ class UNetResEncoder(nn.Module):
         return np.int64(0)
 
 
-# ---------- 解码器 ----------
+# ---------- Decoder ----------
 class UNetResDecoder(nn.Module):
     def __init__(
         self,
@@ -382,15 +382,15 @@ class UNetResDecoder(nn.Module):
         return np.int64(0)
 
 
-# ---------- 多编码器主体 ----------
+# ---------- Multi-Encoder Backbone ----------
 class MultiEncoderUNet(nn.Module):
     """
-    多编码器（每模态一个）+ 逐层融合 + 共享解码器。
-    输入: [B, M, ...]，M=模态数（由 num_input_channels 传入）。
+    Multiple encoders (one per modality) + stage-wise fusion + shared decoder.
+    Input: [B, M, ...], where M is the modality count (from num_input_channels).
     """
     def __init__(
         self,
-        input_channels: int,   # = 模态数
+        input_channels: int,   # modality count
         n_stages: int,
         features_per_stage: Union[int, List[int], Tuple[int, ...]],
         conv_op: Type[_ConvNd],
@@ -402,8 +402,8 @@ class MultiEncoderUNet(nn.Module):
         conv_bias: bool = False,
         norm_op: Union[None, Type[nn.Module]] = None,
         norm_op_kwargs: dict = None,
-        dropout_op: Union[None, Type[_DropoutNd]] = None,   # 占位
-        dropout_op_kwargs: dict = None,                     # 占位
+        dropout_op: Union[None, Type[_DropoutNd]] = None,   # placeholder
+        dropout_op_kwargs: dict = None,                     # placeholder
         nonlin: Union[None, Type[nn.Module]] = None,
         nonlin_kwargs: dict = None,
         deep_supervision: bool = False,
@@ -485,7 +485,7 @@ class MultiEncoderUNet(nn.Module):
 
     def forward(self, x, text: Optional[torch.Tensor] = None,
                 return_extra: bool = False) -> Union[torch.Tensor, List[torch.Tensor], Dict[str, torch.Tensor]]:
-        modalities = list(x.split(1, dim=1))  # M × [B,1,...]
+        modalities = list(x.split(1, dim=1))  # M x [B,1,...]
         all_skips = [enc(m) for enc, m in zip(self.encoders, modalities)]
 
         fused_skips: List[torch.Tensor] = []
@@ -531,7 +531,7 @@ class MultiEncoderUNet(nn.Module):
         return np.int64(0)
 
 
-# ---------- from_plans 入口 ----------
+# ---------- from_plans Entry ----------
 def _features_per_stage_from_cfg(cfg: ConfigurationManager) -> List[int]:
     return [min(cfg.UNet_base_num_features * 2 ** i, cfg.unet_max_num_features)
             for i in range(len(cfg.conv_kernel_sizes))]
@@ -544,24 +544,24 @@ def get_multi_encoder_unet_3d_from_plans(
     deep_supervision: bool = True
 ):
     """
-    兼容多版本 ConfigurationManager：
-      - 卷积核尺寸：优先 cm.conv_kernel_sizes / cm.kernel_sizes / cm.get_conv_kernel_sizes()
-                   若都不存在则回退为每个 stage 使用 [3,3,3]
-      - 下采样步长（pool_op_kernel_sizes）：优先 cm.pool_op_kernel_sizes，
-                   若没有则从 plans_manager 或 cm.plans_manager 兜底，
-                   仍失败则用 [[2,2,2], ...]（除最后一层为 [1,1,1]）
+    Compatibility across ConfigurationManager versions:
+      - Convolution kernels: prefer cm.conv_kernel_sizes / cm.kernel_sizes / cm.get_conv_kernel_sizes();
+        if none exists, fall back to [3,3,3] per stage.
+      - Downsampling strides (pool_op_kernel_sizes): prefer cm.pool_op_kernel_sizes;
+        if missing, try plans_manager or cm.plans_manager;
+        if still missing, use [[2,2,2], ...] with [1,1,1] for the last stage.
     """
     cm = configuration_manager
 
     # ---------- helpers ----------
     def _resolve_pool_kernels():
-        # 1) 直接字段（新老版本均常见）
+        # 1) Direct attribute (common across versions)
         if hasattr(cm, "pool_op_kernel_sizes"):
             pk = cm.pool_op_kernel_sizes
             if pk is not None and len(pk) > 0:
                 return pk
 
-        # 2) 从 plans_manager/配置名兜底
+        # 2) Fallback via plans_manager and configuration name
         cfg_name = getattr(cm, "configuration_name", None)
         pm = getattr(cm, "plans_manager", None)
         candidates = []
@@ -569,12 +569,12 @@ def get_multi_encoder_unet_3d_from_plans(
             if src is None:
                 continue
             try:
-                # 有些实现为字典 keyed by configuration name
+                # Some implementations store this as a dict keyed by configuration name.
                 if cfg_name and hasattr(src, "pool_op_kernel_sizes") and isinstance(src.pool_op_kernel_sizes, dict):
                     v = src.pool_op_kernel_sizes.get(cfg_name, None)
                     if v:
                         candidates.append(v)
-                # 也可能直接是 list
+                # It may also be a plain list.
                 elif hasattr(src, "pool_op_kernel_sizes"):
                     v = src.pool_op_kernel_sizes
                     if v:
@@ -584,24 +584,24 @@ def get_multi_encoder_unet_3d_from_plans(
         if candidates:
             return candidates[0]
 
-        # 3) 兜底：根据层数先假设 5 层，然后全部用 [2,2,2]，最后一层 [1,1,1]
+        # 3) Fallback: assume 5 stages, use [2,2,2] and [1,1,1] for the last stage.
         default_stages = 5
         pk = [[2, 2, 2] for _ in range(default_stages)]
         pk[-1] = [1, 1, 1]
         return pk
 
     def _resolve_conv_kernels(num_stages: int):
-        # 1) 常见字段
+        # 1) Common attribute
         if hasattr(cm, "conv_kernel_sizes"):
             ck = cm.conv_kernel_sizes
             if ck is not None and len(ck) > 0:
                 return ck
-        # 2) 有些版本改名为 kernel_sizes
+        # 2) Some versions rename it to kernel_sizes.
         if hasattr(cm, "kernel_sizes"):
             ks = cm.kernel_sizes
             if ks is not None and len(ks) > 0:
                 return ks
-        # 3) 有些版本提供方法
+        # 3) Some versions expose a getter method.
         if hasattr(cm, "get_conv_kernel_sizes"):
             try:
                 ks = cm.get_conv_kernel_sizes()
@@ -609,7 +609,7 @@ def get_multi_encoder_unet_3d_from_plans(
                     return ks
             except Exception:
                 pass
-        # 4) 兜底：全 3x3x3
+        # 4) Fallback: all 3x3x3.
         return [[3, 3, 3] for _ in range(num_stages)]
 
     # ---------- resolve strides & kernels ----------
@@ -617,14 +617,14 @@ def get_multi_encoder_unet_3d_from_plans(
     num_stages = len(strides)
 
     kernel_sizes = _resolve_conv_kernels(num_stages)
-    # 若长度不一致，按最短对齐，或将 kernel_sizes 用最后一个填充到和 strides 一致
+    # If lengths differ, pad/truncate kernel_sizes to match strides.
     if len(kernel_sizes) < num_stages:
         last = kernel_sizes[-1] if kernel_sizes else [3, 3, 3]
         kernel_sizes = list(kernel_sizes) + [last for _ in range(num_stages - len(kernel_sizes))]
     elif len(kernel_sizes) > num_stages:
         kernel_sizes = kernel_sizes[:num_stages]
 
-    # 维度校验
+    # Dimensionality check
     dim = len(kernel_sizes[0]) if kernel_sizes and kernel_sizes[0] is not None else 3
     assert dim == 3, "This constructor is for 3D; use the 2D variant for 2D."
 
@@ -682,7 +682,7 @@ def get_multi_encoder_unet_3d_from_plans(
         deep_supervision=deep_supervision,
         **conv_or_blocks_per_stage,
         **kwargs,
-        # text conditioning (可选参数，模型里如不接受会被忽略或需对应接收)
+        # text conditioning (optional; ignored unless the model consumes these kwargs)
         text_embed_dim=text_embed_dim,
         use_alignment_head=use_alignment_head,
         return_heatmap=return_heatmap,

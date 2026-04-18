@@ -2,12 +2,12 @@
 set -euo pipefail
 
 # Attention-enabled Text trainer wrapper using the tuned cross-attention hyperparameters
-# (gamma=0.10, alpha=0.10, tau=0.45, warmup=0) and loading a pretrained multi-encoder checkpoint.
+# (gamma=0.10, alpha=0.12, tau=0.44, warmup=0) and loading a pretrained multi-encoder checkpoint.
 # Usage:
-#   bash tools/run_text_attn_best.sh <GPU_ID> [FOLD] [DATASET] [CONFIG] [PLANS] [PRETRAINED_CKPT]
+#   bash tools/train/run_text_attn_best.sh <GPU_ID> [FOLD] [DATASET] [CONFIG] [PLANS] [PRETRAINED_CKPT]
 #
 # Example:
-#   bash tools/run_text_attn_best.sh 4 1 Dataset2203_picai_split 3d_fullres nnUNetPlans \
+#   bash tools/train/run_text_attn_best.sh 4 1 Dataset2203_picai_split 3d_fullres nnUNetPlans \
 #       /data2/yyp4247/data/nnUNet_data_filtered/nnUNet_results/Dataset2203_picai_split/nnUNetTrainerMultiEncoderUNetText__nnUNetPlans__3d_fullres/fold_1/checkpoint_best.pth
 
 GPU="${1:?Need GPU id}"
