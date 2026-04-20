@@ -139,7 +139,11 @@ Key env vars:
 ## 6) Inference
 
 ```bash
+<<<<<<< Updated upstream
 bash tools/infer/run_text_test.sh <INPUT_DIR> <OUTPUT_DIR> 0
+=======
+bash tools/infer/run_text_test.sh <INPUT_DIR> <OUTPUT_DIR> 0 <MODEL_PATH>
+>>>>>>> Stashed changes
 ```
 
 - `INPUT_DIR`: nnUNet-style input images directory
@@ -149,6 +153,10 @@ bash tools/infer/run_text_test.sh <INPUT_DIR> <OUTPUT_DIR> 0
 Args:
 
 - `<INPUT_DIR> <OUTPUT_DIR> [GPU_ID] [MODEL_PATH]`
+<<<<<<< Updated upstream
+=======
+- `[MODEL_PATH]`: optional model path. This can be a checkpoint file, a `fold_*` directory, or a model/results directory.
+>>>>>>> Stashed changes
 
 Key env vars:
 
