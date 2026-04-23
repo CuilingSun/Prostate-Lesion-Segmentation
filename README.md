@@ -176,21 +176,32 @@ We gratefully acknowledge and thank the nnU-Net authors and contributors for ope
 
 ## Citation
 
-Citation for our paper, *Align then Refine: Text-Guided 3D Prostate Lesion Segmentation*, will be added/updated here once final publication details are available.
+If you find this work useful, please cite:
 
-If you use this repository in academic work, please also cite the original nnU-Net paper:
+```bibtex
+@misc{sun2026alignrefinetextguided3d,
+      title={Align then Refine: Text-Guided 3D Prostate Lesion Segmentation}, 
+      author={Cuiling Sun and Linkai Peng and Adam Murphy and Elif Keles and Hiten D. Patel and Ashley Ross and Frank Miller and Baris Turkbey and Andrea Mia Bejar and Halil Ertugrul Aktas and Gorkem Durak and Ulas Bagci},
+      year={2026},
+      eprint={2604.18713},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2604.18713}, 
+}
+```
 
-Isensee, F., Jaeger, P.F., Kohl, S.A.A. et al. nnU-Net: a self-configuring method for deep learning-based biomedical image segmentation. Nat Methods 18, 203–211 (2021). https://doi.org/10.1038/s41592-020-01008-z
+If you use our codebase, please also cite:
 
 ```bibtex
 @article{isensee2021nnu,
   title   = {nnU-Net: a self-configuring method for deep learning-based biomedical image segmentation},
   author  = {Isensee, Fabian and Jaeger, Paul F. and Kohl, Simon A. A. and Petersen, Jens and Maier-Hein, Klaus H.},
-  journal = {Nat Methods},
+  journal = {Nature Methods},
   volume  = {18},
   number  = {2},
   pages   = {203--211},
   year    = {2021},
   doi     = {10.1038/s41592-020-01008-z}
 }
+```
 ```
