@@ -1,6 +1,6 @@
 # Align then Refine: Text-Guided 3D Prostate Lesion Segmentation
 
-Our paper, *Align then Refine: Text-Guided 3D Prostate Lesion Segmentation*, has been accepted for presentation at the 48th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (IEEE EMBC 2026).
+Our paper, ***Align then Refine: Text-Guided 3D Prostate Lesion Segmentation***, has been accepted for presentation at the 48th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (**IEEE EMBC 2026**).
 
 This README describes how to reproduce the customized training and inference pipeline in this fork (multi-encoder + text conditioning + attention-based refinement).
 
