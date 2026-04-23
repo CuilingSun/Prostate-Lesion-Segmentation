@@ -204,4 +204,3 @@ If you use our codebase, please also cite:
   doi     = {10.1038/s41592-020-01008-z}
 }
 ```
-```
