@@ -2,7 +2,7 @@
 
 Our paper, ***Align then Refine: Text-Guided 3D Prostate Lesion Segmentation***, has been accepted for presentation at the 48th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (**IEEE EMBC 2026**).
 
-This README describes how to reproduce the customized training and inference pipeline in this fork (multi-encoder + text conditioning + attention-based refinement).
+This README provides instructions for using the customized training and inference pipeline in this repository, including multi-encoder design, text conditioning, and attention-based refinement.
 
 ## 1) What to run
 
